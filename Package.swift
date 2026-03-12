@@ -22,5 +22,8 @@ let package = Package(
         .executableTarget(name: "send-text", dependencies: ["FlaschenTaschenClientKit"]),
         .executableTarget(name: "send-image", dependencies: ["FlaschenTaschenClientKit"]),
         .executableTarget(name: "send-video", dependencies: ["FlaschenTaschenClientKit"]),
+
+        // Tests
+        .testTarget(name: "FlaschenTaschenClientKitTests", dependencies: ["FlaschenTaschenClientKit"]),
     ]
 )

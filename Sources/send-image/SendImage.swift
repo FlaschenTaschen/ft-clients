@@ -11,6 +11,7 @@ nonisolated private let logger = Logger(subsystem: Logging.subsystem, category: 
 struct SendImage {
     static func main() async {
         let commandArgs = CommandLine.arguments
+        let commandArgs = ArgumentPreprocessor.preprocess(args: CommandLine.arguments)
 
         // Log raw command-line arguments
         logger.debug("Command-line arguments: \(commandArgs, privacy: .public)")

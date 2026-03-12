@@ -47,9 +47,10 @@ public class UDPFlaschenTaschen: @unchecked Sendable {
         let pixelBufferSize = width * height * 3
         bufferData.append(Data(count: pixelBufferSize))
 
-        // Add footer space for offsets
+        // Add footer space for offsets (fixed width for offset numbers + null terminator)
         let footer = "\n0000 0000 0000\n"
         bufferData.append(footer.data(using: .ascii)!)
+        bufferData.append(0)  // Null terminator to match C++ kFooterLen
 
         self.buffer = bufferData
         self.pixelBufferStart = header.count
@@ -121,17 +122,14 @@ public class UDPFlaschenTaschen: @unchecked Sendable {
     }
 
     public func send() {
-        send(fileDescriptor)
-    }
-
-    public func send(_ fd: Int32) {
-        guard fd >= 0 else {
-            logger.error("send() called with invalid file descriptor: \(fd, privacy: .public)")
+        guard fileDescriptor >= 0 else {
+            logger.error("send() called with invalid file descriptor: \(self.fileDescriptor, privacy: .public)")
             return
         }
 
-        let bufferBytes = [UInt8](buffer)
-        let bytesWritten = Darwin.write(fd, bufferBytes, bufferBytes.count)
+        let bytesWritten = buffer.withUnsafeBytes { bufferPtr in
+            Darwin.write(fileDescriptor, bufferPtr.baseAddress!, buffer.count)
+        }
         if bytesWritten < 0 {
             logger.error("write() failed, errno: \(errno, privacy: .public)")
         }
@@ -177,7 +175,6 @@ public func openFlaschenTaschenSocket(hostname: String?) -> Int32 {
 
     if connect(fd, info.pointee.ai_addr, info.pointee.ai_addrlen) < 0 {
         logger.error("connect() failed - is the FT display running at \(host, privacy: .public):1337?")
-        perror("connect()")
         close(fd)
         return -1
     }
