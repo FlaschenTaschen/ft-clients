@@ -116,7 +116,7 @@ public class UDPFlaschenTaschen: @unchecked Sendable {
     }
 
     public func setOffset(x: Int, y: Int, z: Int) {
-        let offsetString = String(format: "\n%04d %04d %04d\n", x, y, z)
+        let offsetString = String(format: "\n%d %d %d\n", x, y, z)
         let offsetData = offsetString.data(using: .ascii)!
         buffer.replaceSubrange(footerStart..<buffer.count, with: offsetData)
     }
