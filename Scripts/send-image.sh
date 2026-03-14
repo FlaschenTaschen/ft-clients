@@ -20,6 +20,7 @@ fi
 GEOMETRY="45x35"
 HOSTNAME="localhost"
 LAYER="5"
+TIMEOUT="60"
 
 # Parse arguments to find -g, -h, -l flags
 ARGS=()
@@ -40,6 +41,11 @@ for arg in "$@"; do
             LAYER=""
             ARGS+=("$arg")
             ;;
+        -t*)
+            # User specified timeout, don't override
+            TIMEOUT=""
+            ARGS+=("$arg")
+            ;;
         *)
             ARGS+=("$arg")
             ;;
@@ -57,7 +63,10 @@ fi
 if [ -n "$LAYER" ]; then
     CMD="$CMD -l $LAYER"
 fi
+if [ -n "$TIMEOUT" ]; then
+    CMD="$CMD -t $TIMEOUT"
+fi
 CMD="$CMD ${ARGS[@]}"
 
 echo $CMD
-exec $CMD
+exec $CMD && echo "Sent image"
